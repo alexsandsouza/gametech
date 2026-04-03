@@ -15,8 +15,6 @@ export default function ImageSequencePlayer({ fps = 20 }: { fps?: number }) {
   // Refs — never trigger re-renders
   const imgRef    = useRef<HTMLImageElement>(null)
   const frameRef  = useRef(0)
-  const lastTs    = useRef<number | undefined>(undefined)
-  const rafId     = useRef<number | undefined>(undefined)
   const interval  = 1000 / fps
 
   /* ── Preload all frames ─────────────────────────────── */
@@ -31,41 +29,19 @@ export default function ImageSequencePlayer({ fps = 20 }: { fps?: number }) {
     })
   }, [])
 
-  /* ── rAF loop — direct DOM mutation, no state ────────── */
+  /* ── Animation loop — direct DOM mutation ────────── */
   useEffect(() => {
     if (!loaded) return
 
-    function tick(ts: number) {
-      // Advance frame only when enough time has passed
-      if (lastTs.current === undefined || ts - lastTs.current >= interval) {
-        lastTs.current = ts
-        frameRef.current = (frameRef.current + 1) % FRAME_COUNT
-        if (imgRef.current) {
-          imgRef.current.src = frames[frameRef.current]
-        }
+    const timer = setInterval(() => {
+      frameRef.current = (frameRef.current + 1) % FRAME_COUNT
+      if (imgRef.current) {
+        imgRef.current.src = frames[frameRef.current]
       }
-      rafId.current = requestAnimationFrame(tick)
-    }
+    }, interval)
 
-    rafId.current = requestAnimationFrame(tick)
-
-    // Resume when tab regains focus (browsers pause rAF on hidden tabs)
-    function onVisibility() {
-      if (document.visibilityState === 'visible') {
-        lastTs.current = undefined          // reset so no frame-skip after pause
-        rafId.current  = requestAnimationFrame(tick)
-      } else {
-        if (rafId.current) cancelAnimationFrame(rafId.current)
-      }
-    }
-    document.addEventListener('visibilitychange', onVisibility)
-
-    return () => {
-      if (rafId.current) cancelAnimationFrame(rafId.current)
-      document.removeEventListener('visibilitychange', onVisibility)
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [loaded])          // ← only 'loaded'; interval is stable (fps never changes)
+    return () => clearInterval(timer)
+  }, [loaded, interval])
 
   return (
     <div className="relative w-full max-w-[520px] mx-auto select-none">
