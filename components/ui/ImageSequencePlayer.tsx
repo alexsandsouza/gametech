@@ -4,44 +4,83 @@ import { useEffect, useRef, useState } from 'react'
 
 const FRAME_COUNT = 80
 const BASE = '/Woman_reading_glowing/Woman_reading_glowing_202604031050_'
+
 const frames = Array.from(
   { length: FRAME_COUNT },
   (_, i) => `${BASE}${String(i).padStart(3, '0')}.jpg`
 )
 
-export default function ImageSequencePlayer({ fps = 20 }: { fps?: number }) {
+export default function ImageSequencePlayer({ fps = 24 }: { fps?: number }) {
   const [loaded, setLoaded] = useState(false)
 
-  // Refs — never trigger re-renders
-  const imgRef    = useRef<HTMLImageElement>(null)
-  const frameRef  = useRef(0)
-  const interval  = 1000 / fps
+  const canvasRef = useRef<HTMLCanvasElement>(null)
+  const imagesRef = useRef<HTMLImageElement[]>([])
+  const frameRef = useRef(0)
 
-  /* ── Preload all frames ─────────────────────────────── */
+  // Preload and store image objects in memory
   useEffect(() => {
-    let count = 0
-    frames.forEach((src) => {
+    let loadedCount = 0
+    const imgObjs: HTMLImageElement[] = []
+
+    frames.forEach((src, idx) => {
       const img = new window.Image()
       img.src = src
-      const done = () => { if (++count >= frames.length) setLoaded(true) }
-      img.onload  = done
-      img.onerror = done
+      img.onload = () => {
+        loadedCount++
+        imgObjs[idx] = img
+        if (loadedCount === frames.length) {
+          imagesRef.current = imgObjs
+          setLoaded(true)
+        }
+      }
+      img.onerror = () => {
+        loadedCount++
+        imgObjs[idx] = img
+        if (loadedCount === frames.length) {
+          imagesRef.current = imgObjs
+          setLoaded(true)
+        }
+      }
     })
   }, [])
 
-  /* ── Animation loop — direct DOM mutation ────────── */
+  // Canvas paint loop
   useEffect(() => {
     if (!loaded) return
 
-    const timer = setInterval(() => {
-      frameRef.current = (frameRef.current + 1) % FRAME_COUNT
-      if (imgRef.current) {
-        imgRef.current.src = frames[frameRef.current]
-      }
-    }, interval)
+    const canvas = canvasRef.current
+    if (!canvas) return
+    const ctx = canvas.getContext('2d')
+    if (!ctx) return
 
-    return () => clearInterval(timer)
-  }, [loaded, interval])
+    let lastTime = 0
+    let rafId: number
+    const interval = 1000 / fps
+
+    const tick = (timestamp: number) => {
+      if (!lastTime) lastTime = timestamp
+      const deltaTime = timestamp - lastTime
+
+      if (deltaTime >= interval) {
+        lastTime = timestamp
+        frameRef.current = (frameRef.current + 1) % FRAME_COUNT
+
+        const img = imagesRef.current[frameRef.current]
+        if (img && img.complete) {
+          // Clear and draw the current frame to the canvas
+          ctx.clearRect(0, 0, canvas.width, canvas.height)
+          ctx.drawImage(img, 0, 0, canvas.width, canvas.height)
+        }
+      }
+      rafId = requestAnimationFrame(tick)
+    }
+
+    rafId = requestAnimationFrame(tick)
+
+    return () => {
+      cancelAnimationFrame(rafId)
+    }
+  }, [loaded, fps])
 
   return (
     <div className="relative w-full max-w-[520px] mx-auto select-none">
@@ -56,7 +95,7 @@ export default function ImageSequencePlayer({ fps = 20 }: { fps?: number }) {
 
       {/* Frame container */}
       <div className="relative rounded-2xl overflow-hidden" style={{ aspectRatio: '1/1' }}>
-
+        
         {/* Loading skeleton */}
         {!loaded && (
           <div
@@ -75,14 +114,12 @@ export default function ImageSequencePlayer({ fps = 20 }: { fps?: number }) {
           </div>
         )}
 
-        {/* Single <img> — src swapped directly via ref, zero React state */}
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          ref={imgRef}
-          src={frames[0]}
-          alt="GameTech.AI"
+        {/* Canvas for High-Performance rendering */}
+        <canvas
+          ref={canvasRef}
+          width={1024}
+          height={1024}
           className={`w-full h-full object-cover transition-opacity duration-300 ${loaded ? 'opacity-100' : 'opacity-0'}`}
-          draggable={false}
         />
 
         {/* Vignette */}
