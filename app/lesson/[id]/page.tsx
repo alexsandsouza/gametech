@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useState, useRef, useEffect } from 'react'
+import SlidePlayer from '@/components/ui/SlidePlayer'
 
 type Message = {
   id: string
@@ -104,39 +105,29 @@ export default function LessonPage({ params }: { params: { id: string } }) {
       <main className="flex-1 flex flex-col lg:flex-row w-full max-w-7xl mx-auto overflow-hidden">
         
         {/* Left Side: Lesson Content / Video */}
-        <div className="w-full lg:w-[60%] border-b lg:border-b-0 lg:border-r border-white/[0.06] flex flex-col p-6 overflow-y-auto">
+        <div className="w-full lg:w-[60%] border-b lg:border-b-0 lg:border-r border-white/[0.06] flex flex-col p-4 sm:p-6 pb-2 sm:pb-6 overflow-y-auto">
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="mb-8"
+            className="mb-6"
           >
             <div className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-bold uppercase tracking-wider mb-4" 
               style={{ background: 'rgba(0,180,255,0.1)', color: '#00B4FF' }}>
               Trilha de Base
             </div>
-            <h1 className="text-2xl sm:text-3xl font-black mb-4 leading-tight">
+            <h1 className="text-2xl sm:text-3xl font-black mb-3 leading-tight">
               Sua primeira interação com Inteligência Artificial
             </h1>
-            <p className="text-muted leading-relaxed">
-              Aqui ao lado esquerdo você terá a visão geral dos conteúdos e apresentações.
-              Na direita, é a sua vez de sujar as mãos: o Laboratório Interativo avalia
-              suas respostas e testa seus limites em tempo real!
+            <p className="text-muted leading-relaxed text-sm">
+              Assista os slides da aula à esquerda. Em seguida, interaja com o Laboratório Prático à direita.
             </p>
           </motion.div>
 
-          <div className="aspect-video w-full rounded-2xl border border-white/[0.1] bg-black/40 flex items-center justify-center relative overflow-hidden group">
-             {/* Glow effect */}
-             <div className="absolute inset-0 pointer-events-none opacity-[0.15] group-hover:opacity-30 transition-opacity duration-700" 
-                style={{ background: 'radial-gradient(circle at 50% 50%, #00B4FF 0%, transparent 60%)' }} />
-                
-             {/* Placeholder for Video Player / Presentation */}
-             <div className="text-center z-10">
-               <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-white/5 border border-white/10 flex items-center justify-center backdrop-blur-sm shadow-[0_0_30px_rgba(0,180,255,0.2)]">
-                  <span className="text-2xl ml-1">▶</span>
-               </div>
-               <span className="text-sm font-semibold text-white/70">Assistir Aula Introdutória</span>
-             </div>
-          </div>
+          <SlidePlayer slides={[
+            { id: '1', title: 'O que é IA Generativa?', content: 'IA Generativa se refere aos algoritmos que processam dados massivos para conseguir criar conteúdo novo — seja texto, imagem ou código. É diferente das velhas IAs que apenas classificavam dados.', duration: 7, icon: '🧠' },
+            { id: '2', title: 'A Revolução do Prompt', content: 'Sua forma de se comunicar com a IA muda tudo. A Engenharia de Prompt, como é chamada, é a arte criativa de guiar o modelo cognitivo para as respostas exatas que você procura.', duration: 8, icon: '⚡' },
+            { id: '3', title: 'O Lab Prático', content: 'Chega de teoria! No painel à direita, o Mentor de IA está pronto para o seu primeiro desafio. Você completará missões reais ganhando XP. Pode mostrar do que é capaz?', duration: 6, icon: '🎯' },
+          ]} />
         </div>
 
         {/* Right Side: Chat / Interactive Lab */}
