@@ -1,5 +1,7 @@
 # GameTech.AI — Landing Page
 
+🌐 **Live:** [https://gametech-ai.vercel.app](https://gametech-ai.vercel.app)
+
 Landing page de alta conversão para a plataforma GameTech.AI, construída com Next.js 14, TypeScript, Tailwind CSS e Framer Motion.
 
 ## 🚀 Setup
