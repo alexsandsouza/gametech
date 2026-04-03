@@ -1,4 +1,4 @@
-# GameTech.AI — Landing Page
+# GameTech.AI - Landing Page
 
 Landing page de alta conversão para a plataforma GameTech.AI, construída com Next.js 14, TypeScript, Tailwind CSS e Framer Motion.
 
