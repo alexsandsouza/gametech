@@ -1,97 +1,112 @@
 'use client'
 
-import { useEffect, useState, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
-// Build the list of 80 frames: _000.jpg → _079.jpg
 const FRAME_COUNT = 80
 const BASE = '/Woman_reading_glowing/Woman_reading_glowing_202604031050_'
 
-const frames = Array.from({ length: FRAME_COUNT }, (_, i) =>
-  `${BASE}${String(i).padStart(3, '0')}.jpg`  // 000, 001, 002 … 079
+const frames = Array.from(
+  { length: FRAME_COUNT },
+  (_, i) => `${BASE}${String(i).padStart(3, '0')}.jpg`
 )
 
 interface Props {
   fps?: number
 }
 
-export default function ImageSequencePlayer({ fps = 24 }: Props) {
-  const [current, setCurrent] = useState(0)
-  const [loaded, setLoaded]   = useState(false)
-  const loadedCount = useRef(0)
-  const interval    = useRef<ReturnType<typeof setInterval>>()
+export default function ImageSequencePlayer({ fps = 20 }: Props) {
+  const [currentFrame, setCurrentFrame] = useState(0)
+  const [loaded, setLoaded] = useState(false)
 
-  // Preload all frames
+  const frameRef  = useRef(0)
+  const rafRef    = useRef<number>()
+  const lastRef   = useRef<number>()
+  const loadedRef = useRef(0)
+  const interval  = Math.round(1000 / fps)
+
+  // Preload all frames once on mount
   useEffect(() => {
+    let cancelled = false
     frames.forEach((src) => {
       const img = new window.Image()
-      img.src = src
-      img.onload = () => {
-        loadedCount.current += 1
-        if (loadedCount.current >= frames.length) setLoaded(true)
+      img.src   = src
+      const done = () => {
+        if (cancelled) return
+        loadedRef.current += 1
+        if (loadedRef.current >= frames.length) setLoaded(true)
       }
-      img.onerror = () => {
-        loadedCount.current += 1
-        if (loadedCount.current >= frames.length) setLoaded(true)
-      }
+      img.onload  = done
+      img.onerror = done
     })
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    return () => { cancelled = true }
   }, [])
 
-  // Start animation once loaded
+  // rAF loop — starts when loaded, never stops
   useEffect(() => {
     if (!loaded) return
-    const ms = Math.round(1000 / fps)
-    interval.current = setInterval(() => {
-      setCurrent((c) => (c + 1) % frames.length)
-    }, ms)
-    return () => clearInterval(interval.current)
-  }, [loaded, fps])
+
+    const tick = (ts: number) => {
+      if (lastRef.current === undefined) lastRef.current = ts
+
+      if (ts - lastRef.current >= interval) {
+        lastRef.current = ts
+        frameRef.current = (frameRef.current + 1) % FRAME_COUNT
+        setCurrentFrame(frameRef.current)
+      }
+
+      rafRef.current = requestAnimationFrame(tick)
+    }
+
+    rafRef.current = requestAnimationFrame(tick)
+    return () => {
+      if (rafRef.current) cancelAnimationFrame(rafRef.current)
+    }
+  }, [loaded, interval])
 
   return (
     <div className="relative w-full max-w-[520px] mx-auto select-none">
-      {/* Outer glow */}
+      {/* Glow */}
       <div
         className="absolute inset-0 rounded-3xl pointer-events-none blur-3xl opacity-25"
         style={{
-          background: 'radial-gradient(ellipse, #00E5A0 0%, #00B4FF 60%, transparent 80%)',
+          background:
+            'radial-gradient(ellipse, #00E5A0 0%, #00B4FF 60%, transparent 80%)',
         }}
       />
 
       {/* Frame container */}
-      <div className="relative rounded-2xl overflow-hidden"
-        style={{ aspectRatio: '1/1' }}
-      >
-        {/* Loading skeleton */}
+      <div className="relative rounded-2xl overflow-hidden" style={{ aspectRatio: '1/1' }}>
+
+        {/* Loading dots */}
         {!loaded && (
-          <div className="absolute inset-0 flex items-center justify-center"
-            style={{ background: 'rgba(255,255,255,0.03)' }}>
+          <div
+            className="absolute inset-0 flex items-center justify-center"
+            style={{ background: 'rgba(255,255,255,0.03)' }}
+          >
             <div className="flex gap-2">
-              {[0,1,2].map((_, idx) => (
+              {[0, 1, 2].map((_, idx) => (
                 <div
                   key={idx}
                   className="w-2.5 h-2.5 rounded-full animate-bounce"
-                  style={{
-                    background: '#00E5A0',
-                    animationDelay: `${idx * 0.15}s`,
-                  }}
+                  style={{ background: '#00E5A0', animationDelay: `${idx * 0.15}s` }}
                 />
               ))}
             </div>
           </div>
         )}
 
-        {/* Frames — only the current one is visible */}
+        {/* Current frame */}
         {loaded && (
           // eslint-disable-next-line @next/next/no-img-element
           <img
-            src={frames[current]}
-            alt="Woman reading glowing"
+            src={frames[currentFrame]}
+            alt="GameTech.AI"
             className="w-full h-full object-cover"
             draggable={false}
           />
         )}
 
-        {/* Subtle vignette overlay */}
+        {/* Vignette */}
         <div
           className="absolute inset-0 pointer-events-none"
           style={{
