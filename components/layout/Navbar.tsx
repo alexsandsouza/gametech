@@ -4,6 +4,16 @@ import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { NAV_LINKS } from '@/lib/data'
 
+// Smooth scroll to section with navbar offset
+function scrollTo(href: string) {
+  const id = href.replace('#', '')
+  const el = document.getElementById(id)
+  if (!el) return
+  const navHeight = 72
+  const top = el.getBoundingClientRect().top + window.scrollY - navHeight
+  window.scrollTo({ top, behavior: 'smooth' })
+}
+
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
@@ -14,12 +24,18 @@ export default function Navbar() {
     return () => window.removeEventListener('scroll', onScroll)
   }, [])
 
+  const handleLink = (href: string) => {
+    setMenuOpen(false)
+    // small delay so drawer closes before scroll kicks in
+    setTimeout(() => scrollTo(href), 150)
+  }
+
   return (
     <>
       <motion.nav
         initial={{ y: -80, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+        transition={{ duration: 0.6, ease: 'easeOut' }}
         className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
           scrolled
             ? 'bg-bg/90 backdrop-blur-xl border-b border-white/[0.06] shadow-lg'
@@ -44,25 +60,25 @@ export default function Navbar() {
             {/* Desktop Nav */}
             <div className="hidden md:flex items-center gap-1">
               {NAV_LINKS.map((link) => (
-                <a
+                <button
                   key={link.href}
-                  href={link.href}
+                  onClick={() => scrollTo(link.href)}
                   className="px-4 py-2 text-sm font-medium text-muted hover:text-white rounded-lg hover:bg-white/[0.06] transition-all duration-200"
                 >
                   {link.label}
-                </a>
+                </button>
               ))}
             </div>
 
             {/* CTA + Burger */}
             <div className="flex items-center gap-3">
-              <a
-                href="#precos"
+              <button
+                onClick={() => scrollTo('#precos')}
                 className="hidden sm:flex btn-gradient px-5 py-2.5 rounded-xl text-sm font-bold items-center gap-2"
               >
                 <span>⚡</span>
                 Começar grátis
-              </a>
+              </button>
 
               {/* Burger */}
               <button
@@ -101,24 +117,22 @@ export default function Navbar() {
             >
               <div className="px-4 py-4 flex flex-col gap-1">
                 {NAV_LINKS.map((link) => (
-                  <a
+                  <button
                     key={link.href}
-                    href={link.href}
-                    onClick={() => setMenuOpen(false)}
-                    className="px-4 py-3 text-sm font-medium text-muted hover:text-white rounded-xl hover:bg-white/[0.06] transition-all duration-200"
+                    onClick={() => handleLink(link.href)}
+                    className="px-4 py-3 text-sm font-medium text-muted hover:text-white rounded-xl hover:bg-white/[0.06] transition-all duration-200 text-left"
                   >
                     {link.label}
-                  </a>
+                  </button>
                 ))}
                 <div className="mt-2 pt-3 border-t border-white/[0.06]">
-                  <a
-                    href="#precos"
-                    onClick={() => setMenuOpen(false)}
-                    className="flex btn-gradient px-5 py-3 rounded-xl text-sm font-bold items-center justify-center gap-2"
+                  <button
+                    onClick={() => handleLink('#precos')}
+                    className="flex btn-gradient px-5 py-3 rounded-xl text-sm font-bold items-center justify-center gap-2 w-full"
                   >
                     <span>⚡</span>
                     Começar grátis
-                  </a>
+                  </button>
                 </div>
               </div>
             </motion.div>

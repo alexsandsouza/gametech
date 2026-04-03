@@ -133,7 +133,7 @@ export default function Hero() {
           </motion.div>
 
           {/* Right col — image sequence + floating badges */}
-          <div className="hidden lg:flex justify-center items-center">
+          <div className="flex justify-center items-center mt-8 lg:mt-0">
             <div className="relative w-full max-w-[520px]">
               <ImageSequencePlayer fps={24} />
 
