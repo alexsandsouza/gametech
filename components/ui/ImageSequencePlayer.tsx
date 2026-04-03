@@ -25,22 +25,22 @@ export default function ImageSequencePlayer({ fps = 24 }: { fps?: number }) {
     frames.forEach((src, idx) => {
       const img = new window.Image()
       img.src = src
-      img.onload = () => {
+      const done = () => {
         loadedCount++
         imgObjs[idx] = img
         if (loadedCount === frames.length) {
           imagesRef.current = imgObjs
+          
+          if (canvasRef.current && imgObjs[0]) {
+            canvasRef.current.width = imgObjs[0].naturalWidth
+            canvasRef.current.height = imgObjs[0].naturalHeight
+          }
+          
           setLoaded(true)
         }
       }
-      img.onerror = () => {
-        loadedCount++
-        imgObjs[idx] = img
-        if (loadedCount === frames.length) {
-          imagesRef.current = imgObjs
-          setLoaded(true)
-        }
-      }
+      img.onload = done
+      img.onerror = done
     })
   }, [])
 
@@ -117,8 +117,6 @@ export default function ImageSequencePlayer({ fps = 24 }: { fps?: number }) {
         {/* Canvas for High-Performance rendering */}
         <canvas
           ref={canvasRef}
-          width={1024}
-          height={1024}
           className={`w-full h-full object-cover transition-opacity duration-300 ${loaded ? 'opacity-100' : 'opacity-0'}`}
         />
 
