@@ -1,6 +1,7 @@
 'use client'
 
 import { motion } from 'framer-motion'
+import Link from 'next/link'
 import StarParticles from '@/components/ui/StarParticles'
 import TypewriterText from '@/components/ui/TypewriterText'
 import ImageSequencePlayer from '@/components/ui/ImageSequencePlayer'
@@ -103,15 +104,15 @@ export default function Hero() {
 
             {/* CTAs */}
             <motion.div variants={item} className="flex flex-col sm:flex-row gap-3">
-              <motion.a
+              <motion.div
                 whileHover={{ scale: 1.03, boxShadow: '0 0 40px rgba(0,229,160,0.4)' }}
                 whileTap={{ scale: 0.98 }}
-                href="#precos"
-                className="btn-gradient flex items-center justify-center gap-2.5 px-7 py-4 rounded-xl text-base font-bold"
               >
-                <span className="text-lg">▶</span>
-                Começar grátis agora
-              </motion.a>
+                <Link href="/lesson/1" className="btn-gradient flex w-full h-full items-center justify-center gap-2.5 px-7 py-4 rounded-xl text-base font-bold">
+                  <span className="text-lg">▶</span>
+                  Começar grátis agora
+                </Link>
+              </motion.div>
 
               <motion.a
                 whileHover={{ scale: 1.02 }}

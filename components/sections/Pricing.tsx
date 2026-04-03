@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { motion } from 'framer-motion'
+import Link from 'next/link'
 import AnimatedSection from '@/components/ui/AnimatedSection'
 import { PRICING_PLANS } from '@/lib/data'
 
@@ -96,18 +97,22 @@ export default function Pricing() {
                 </div>
 
                 {/* CTA */}
-                <motion.a
+                <motion.div
                   whileHover={{ scale: 1.03 }}
                   whileTap={{ scale: 0.98 }}
-                  href="#"
-                  className={`w-full py-3.5 rounded-xl text-sm font-bold text-center block mb-7 transition-all duration-200 ${
-                    plan.highlight
-                      ? 'btn-gradient'
-                      : 'border border-white/20 text-white hover:border-accent/50 hover:text-accent'
-                  }`}
+                  className="mb-7"
                 >
-                  {plan.cta} →
-                </motion.a>
+                  <Link
+                    href="/lesson/1"
+                    className={`w-full py-3.5 rounded-xl text-sm font-bold text-center block transition-all duration-200 ${
+                      plan.highlight
+                        ? 'btn-gradient'
+                        : 'border border-white/20 text-white hover:border-accent/50 hover:text-accent'
+                    }`}
+                  >
+                    {plan.cta} →
+                  </Link>
+                </motion.div>
 
                 {/* Features */}
                 <ul className="space-y-3 flex-1">

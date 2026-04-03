@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import Link from 'next/link'
 import { NAV_LINKS } from '@/lib/data'
 
 // Smooth scroll to section with navbar offset
@@ -72,13 +73,13 @@ export default function Navbar() {
 
             {/* CTA + Burger */}
             <div className="flex items-center gap-3">
-              <button
-                onClick={() => scrollTo('#precos')}
+              <Link
+                href="/lesson/1"
                 className="hidden sm:flex btn-gradient px-5 py-2.5 rounded-xl text-sm font-bold items-center gap-2"
               >
                 <span>⚡</span>
                 Começar grátis
-              </button>
+              </Link>
 
               {/* Burger */}
               <button
@@ -126,13 +127,14 @@ export default function Navbar() {
                   </button>
                 ))}
                 <div className="mt-2 pt-3 border-t border-white/[0.06]">
-                  <button
-                    onClick={() => handleLink('#precos')}
+                  <Link
+                    href="/lesson/1"
+                    onClick={() => setMenuOpen(false)}
                     className="flex btn-gradient px-5 py-3 rounded-xl text-sm font-bold items-center justify-center gap-2 w-full"
                   >
                     <span>⚡</span>
                     Começar grátis
-                  </button>
+                  </Link>
                 </div>
               </div>
             </motion.div>

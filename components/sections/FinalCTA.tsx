@@ -1,6 +1,7 @@
 'use client'
 
 import { motion } from 'framer-motion'
+import Link from 'next/link'
 import AnimatedSection from '@/components/ui/AnimatedSection'
 
 export default function FinalCTA() {
@@ -50,15 +51,15 @@ export default function FinalCTA() {
 
         <AnimatedSection delay={0.3}>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <motion.a
+            <motion.div
               whileHover={{ scale: 1.04, boxShadow: '0 0 50px rgba(0,229,160,0.45)' }}
               whileTap={{ scale: 0.98 }}
-              href="#"
-              className="btn-gradient flex items-center justify-center gap-3 px-10 py-5 rounded-2xl text-lg font-black"
             >
-              <span className="text-xl">⚡</span>
-              Criar minha conta grátis agora
-            </motion.a>
+              <Link href="/lesson/1" className="btn-gradient flex w-full h-full items-center justify-center gap-3 px-10 py-5 rounded-2xl text-lg font-black">
+                <span className="text-xl">⚡</span>
+                Criar minha conta grátis agora
+              </Link>
+            </motion.div>
           </div>
 
           <p className="mt-5 text-muted text-sm flex items-center justify-center gap-4 flex-wrap">
