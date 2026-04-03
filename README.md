@@ -1,4 +1,4 @@
-# GameTech.AI — Landing Page
+# GameTech.AI - Landing Page
 
 🌐 **Live:** [https://gametech-ai.vercel.app](https://gametech-ai.vercel.app)
 
